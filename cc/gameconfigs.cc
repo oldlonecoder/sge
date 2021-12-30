@@ -12,20 +12,20 @@ namespace sge
 std::string configs_grammar = R"(
 global      : id_t bloc.
 bloc        : '{' +attr_id '}'.
-attr_id     : ?resolution ?wallpaper ?framerate ?name.
-resolution  : id_t ':' number_t ',' number_t ';'.
+attr_id     : ?resolution ?wallpaper ?framerate ?#name.
+resolution  : id_t ':' u16_t ',' u16_t ';'.
 wallpaper   : id_t ':'  text_t ';'.
 framerate   : id_t ':'  number_t ';'.
 name        : id_t ':' text_t ';'.
 )";
 
-game_configs::input_table game_configs::inputs_table;
-//    {
-//        {"resolution",  &game_configs::in_res},
-//        {"framerate",   &game_configs::in_framerate},
-//        {"wallpaper",   &game_configs::in_wallpaper}
-//        //... more common rules and config elements to come...
-//    };
+game_configs::input_table game_configs::inputs_table=
+    {
+        {"resolution",  &game_configs::parse_resolution},
+        {"framerate",   &game_configs::parse_framerate},
+        {"wallpaper",   &game_configs::parse_wallpaper}
+        //... more common rules and config elements to come...
+    };
 
 
 game_configs::~game_configs()
@@ -119,8 +119,78 @@ expect<> game_configs::compile()
        logger::debug() << token.details(true);
     });
 
+    vxio::parser_base parser;
     
+    vxio::context cctx;
+    cctx._rule = vxio::grammar()["resolution"];
+    cctx.start = cctx.c = tokens.begin();
+    cctx.last = --tokens.end();
+    cctx.blk = nullptr;
+    
+    parser.parse(cctx,[this](vxio::context& ctx)->expect<>{
+        return parse_context(ctx);
+    });
+    vxio::grammar::destroy_rules();
     return logger::warning(src_long_funcname) << " : implement...";
+}
+
+expect<> game_configs::parse_context(vxio::context &ctx)
+{
+    auto token = ctx.i_tokens.begin();
+    logger::debug(src_long_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
+    auto it = game_configs::inputs_table.find((*token)->text());
+    auto [k,fnptr] = *it;
+    logger::debug(src_long_funcname) << "key:'" << k << "'; =>\n";
+    if(fnptr)
+        return (this->*fnptr)(ctx);
+    
+    return logger::fatal() << " yet to be implemented!!! :)";
+}
+
+
+expect<> game_configs::parse_resolution(vxio::context &ctx)
+{
+    auto token = ctx.i_tokens.begin();
+    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // ':'
+    ++token;
+    iostr str;
+    str = (*token)->text();
+    str >> _config_data.resolution.x;
+    ++token;
+    // ','
+    ++token;
+    str = (*token)->text();
+    str >> _config_data.resolution.y;
+    ++token;
+    // ';'
+    logger::debug() << "check:\n";
+    logger::debug() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
+    return rem::code::accepted;
+}
+
+
+
+
+expect<> game_configs::parse_framerate(vxio::context &ctx)
+{
+    auto token = ctx.i_tokens.begin();
+    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // ':'
+    ++token;
+    return rem::code::implement;
+}
+
+
+expect<> game_configs::parse_wallpaper(vxio::context &ctx)
+{
+    auto token = ctx.i_tokens.begin();
+    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // ':'
+    ++token;return rem::code::implement;
 }
 
 }
