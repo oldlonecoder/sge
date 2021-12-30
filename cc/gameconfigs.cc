@@ -8,19 +8,32 @@
 namespace sge
 {
 
-game_configs::input_table game_configs::inputs_table=
-    {
-        {"resolution",  &game_configs::in_res},
-        {"framerate",   &game_configs::in_framerate},
-        {"wallpaper",   &game_configs::in_wallpaper}
-        //... more common rules and config elements to come...
-    };
+
+std::string configs_grammar = R"(
+global      : id_t bloc.
+bloc        : '{' +attr_id '}'.
+attr_id     : ?resolution ?wallpaper ?framerate ?name.
+resolution  : id_t ':' number_t ',' number_t ';'.
+wallpaper   : id_t ':'  text_t ';'.
+framerate   : id_t ':'  number_t ';'.
+name        : id_t ':' text_t ';'.
+)";
+
+game_configs::input_table game_configs::inputs_table;
+//    {
+//        {"resolution",  &game_configs::in_res},
+//        {"framerate",   &game_configs::in_framerate},
+//        {"wallpaper",   &game_configs::in_wallpaper}
+//        //... more common rules and config elements to come...
+//    };
 
 
 game_configs::~game_configs()
 {
 
 }
+
+
 game_configs::game_configs(std::string name_, std::string config_path_):
 cfg_path(std::move(config_path_)), game_name(std::move(name_))
 {
@@ -30,108 +43,28 @@ cfg_path(std::move(config_path_)), game_name(std::move(name_))
 }
 
 
-expect<> game_configs::in_res()
-{
-    logger::debug(src_long_funcname) << "resolution element:\n" << cc->mark() << '\n';
-    // expect tokens: number_t ',' number_t ';'
-    if(!next_token())
-        return logger::error() << " unexpected end of file in window resolution config.";
-    if(!cc->is_number())
-        return logger::error() << " expected numeric value in window resolution config: \n" << cc->mark();
-    iostr text = cc->text();
-    text >> _config_data.resolution.x;
-    logger::debug() << "resolution.x = " << _config_data.resolution.x;
 
-    if(!next_token())
-        return logger::error() << " unexpected end of file in window resolution config.";
-    logger::debug() << "resolution:  next token: \n" << cc->mark() << "\n";
+
+
+expect<> game_configs::init()
+{
     
-    if(!cc->is_punctuation() || (cc->c != vxio::mnemonic::k_comma))
-        return logger::error() << " expected comma separator ( ',' ) in window resolution config : \n" << cc->mark();
-    if(!next_token())
-        return logger::error() << " unexpected end of file in window resolution config.";
-    
-    logger::debug() << "resolution:  next token: \n" << cc->mark() << "\n";
-    if(!cc->is_number())
-        return logger::error() << " expected numeric value in window resolution config:\n";
-    text = cc->text();
-    text >> _config_data.resolution.y;
-    logger::debug() << "resolution.y = " << _config_data.resolution.y;
-    if(!next_token())
-        return logger::warning() << " unexpected end of file, expected end of statement punctuation  ( ';' ), in window resolution config:\n";
-    
-    logger::debug() << "resolution:  next token: \n" << cc->mark() << "\n";
-    if(cc->c != vxio::mnemonic::k_semicolon)
-        logger::warning() << " expected end of statement punctuation  ( ';' ) in window resolution config:\n" << cc->mark();
-    logger::debug() << " resolution parameters data completed!:) \n";
-    return rem::code::accepted;
+    vxio::grammar g;
+    g.text() = configs_grammar;
+    g.build();
+    g.dump();
+    if(expect<> R; !(R = load_sge_sourcefile()))
+        return R;
+    return compile();
 }
 
 
-expect<> game_configs::in_framerate()
-{
-    logger::debug(src_long_funcname) << ":\n";
-    if(!next_token())
-        return logger::error() << " unexpected end of file in framerate config.";
 
-    logger::debug() << "framerate:  next token: \n" << cc->mark() << "\n";
-    if(!cc->is_number())
-        return logger::error() << " expected numeric value in framerate config:\n" << cc->mark() << "\n aborted";
-    
-    iostr text = cc->text();
-    text >> _config_data.framerate;
-    logger::debug() << "framerate = " << _config_data.framerate;
-    if(!next_token())
-        return logger::warning() << " unexpected end of file, expected end of statement punctuation  ( ';' ), in framerate config:\n";
-    
-    return rem::code::accepted;
-}
-/*!
- * @brief get the wallpaper background path/filename
- * @return rem::code
- *
- * @todo maybe call one function instead of repeating next_token/in_expect specifically for a string delimited token.
- */
-expect<> game_configs::in_wallpaper()
+expect<> game_configs::load_sge_sourcefile()
 {
-    logger::debug() << "scene0::wallpaper configs:" << '\n';
-    auto R = in_expect(vxio::type::text_t);
-    if(!R)
-        return R;
-    if(cc->c != vxio::mnemonic::k_dquote)
-        return logger::error() << " expected quote's delimiter for text, got\n" << cc->mark();
-    R = in_expect(vxio::type::text_t);
-    if(!R)
-        return R;
-    
-    _config_data.wallpaper = cc->text();
-    
-    logger::debug() << "scene0::wallpaper (file) :'" << _config_data.wallpaper << "'\n";
-
-    R = in_expect(vxio::type::text_t);
-    if(!R)
-        return R;
-    if(cc->c != vxio::mnemonic::k_dquote) // pas suppose
-        return logger::error() << " expected quote's delimiter for text, got\n" << cc->mark();
-    
-    R = in_expect(vxio::type::punc_t);
-    if(!R)
-        return R;
-    
-    if(cc->c != vxio::mnemonic::k_semicolon)
-        logger::warning() << " expected end of statement punctuation  ( ';' ) in scene0 config:\n" << cc->mark();
-    
-    logger::debug() << " scene0 parameters data completed!:) \n";
-    
-    return rem::code::accepted;
-}
-
-expect<> game_configs::load_ini_sourcefile()
-{
-    iostr filename = cfg_path + game_name + ".ini"; // "usr/local/games/virtualspace/virtualspace.ini"
-    logger::debug() << "ini file path:" << filename() << ":\n";
-    iostr data_stream;
-    
+    iostr filename = cfg_path + game_name + ".sge"; // "/usr/local/games/virtualspace/virtualspace.sge"
+    logger::debug() << "sge file path:" << filename() << ":\n";
+//
     std::ifstream f;
     char c;
     f.open(filename(),std::fstream::in|std::fstream::binary);
@@ -147,60 +80,13 @@ expect<> game_configs::load_ini_sourcefile()
         data_stream += c;
     }
     f.close();
-    lex.config() = {
-        data_stream.c_str(),
-        &tokens
-    };
-    logger::debug() << "ini source contents:\n" << data_stream() << ":\n";
-    if(lex() != rem::code::accepted)
-    {
-        // internal error...
-        logger::error() << "unrecognized error in config file.\n tokens: " << tokens.size() << "\n";
-        lex.dump_tokens([](const vxio::token_data& token)
-        {
-            logger::info() << token.details(true) << "\n";
-        });
-        
-        return rem::code::rejected;
-    }
-    
-    logger::debug() << "lexer done! -> tokens count: " << tokens.size() << ":\n";
-    cc=tokens.begin();
-    
-    while(cc != tokens.end())
-    {
-        expect<> e;
-        logger::debug() << "token: \n" << cc->mark() << "  -->\n";
-        
-        auto i = game_configs::inputs_table.find(cc->text());
-        if(i == game_configs::inputs_table.end())
-        {
-            logger::error() << "error: in config file:\n" << cc->details(true) << "\nrejected.\n";
-            return rem::code::rejected;
-        }
-        auto [k,fnptr] = *i;
-        logger::debug() << "element: '" << k << "' :\n";
-        if(fnptr)
-        {
-            if(!(e = (this->*fnptr)()))
-            {
-                std::cerr << " error: on key = '" << k << "'\n";
-                return e;
-            }
-        }
-        else
-            std::cerr << k << ": oops\n";
-        ++cc;
-    }
+
+    logger::debug() << "sge source contents:\n" << data_stream << ":\n";
     return rem::code::accepted;
 }
 
 
-bool game_configs::next_token()
-{
-    ++cc;
-    return cc != tokens.end();
-}
+
 game_configs &game_configs::operator=(game_configs && rhs) noexcept
 {
     cfg_path = std::move(rhs.cfg_path);
@@ -217,17 +103,24 @@ game_configs &game_configs::operator=(const game_configs &rhs)
     tokens       = rhs.tokens;
     return *this;
 }
-expect<> game_configs::in_expect(vxio::type::T token_type)
+expect<> game_configs::compile()
 {
-    if(!next_token())
-        return logger::error() << " unexpected end of file while loading game configs.";
     
-    logger::debug() << "next token: " << cc->details(true);
+    lex.config() = {
+        data_stream.c_str(),
+        &tokens
+    };
+    if(lex() != rem::code::accepted)
+        return logger::error() << " lexical analysis error in sge source file.";
+    
+    logger::debug() << "lexer done! -> tokens count: " << tokens.size() << ":\n";
+    
+    lex.dump_tokens([](const vxio::token_data& token){
+       logger::debug() << token.details(true);
+    });
 
-    if(cc->t != token_type)
-        return logger::error() << "expected " << vxio::type::name(token_type)  << " token, got :\n" << cc->details(true) << "\n";
     
-    return rem::code::accepted;
+    return logger::warning(src_long_funcname) << " : implement...";
 }
 
 }

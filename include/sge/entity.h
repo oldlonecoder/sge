@@ -51,6 +51,8 @@ protected:
         Scene,
         Player,
         Enemy,
+        Defense,
+        Weapon
         
         //...
     }_class = entity::type::Obstacle;

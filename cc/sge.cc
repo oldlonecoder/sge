@@ -25,28 +25,26 @@ game::game(std::string game_name_)
 void game::init()
 {
     rem::init();
-    if(!_configs.load_ini_sourcefile())
-    {
-        return ;
-    }
-    
-    //_window = new sf::RenderWindow(sf::VideoMode(_configs._config_data.resolution.x, _configs._config_data.resolution.y), "SGE (Simple Game Engine Version 0.01", sf::Style::Titlebar | sf::Style::Close);
-//    _window->setFramerateLimit(_configs._config_data.framerate);
-//    entity *scene0 = new entity("scene0");
-//    asset &a = scene0->asset_data();
-//    iostr assets = _configs.cfg_path;
-//    a.height  = static_cast<float>(_configs._config_data.resolution.y);
-//    a.width   = static_cast<float>(_configs._config_data.resolution.x);
-//    a.texture = new sf::Texture;
-//    a.texture->loadFromFile((assets + "/scenes/nebula.jpg")());
-//    sf::Vector2u sz = a.texture->getSize();
-//    std::cout << " size of the texture after loading:" << sz.x << " , " << sz.y << ";\n";
-//
-//    a.sprite = new sf::Sprite(*a.texture);
-//    a.sprite->setScale(a.width / 1920.f, a.height / 1080.f);
-//    a.sprite->setPosition(0.f, 0.f);
-//    //...
-//    _game_entities << scene0;
+    _configs.init();
+    /*
+    _window = new sf::RenderWindow(sf::VideoMode(_configs._config_data.resolution.x, _configs._config_data.resolution.y), "SGE (Simple Game Engine Version 0.01", sf::Style::Titlebar | sf::Style::Close);
+    _window->setFramerateLimit(_configs._config_data.framerate);
+    entity *scene0 = new entity("scene0");
+    asset &a = scene0->asset_data();
+    iostr assets = _configs.cfg_path;
+    a.height  = static_cast<float>(_configs._config_data.resolution.y);
+    a.width   = static_cast<float>(_configs._config_data.resolution.x);
+    a.texture = new sf::Texture;
+    a.texture->loadFromFile((assets + "/scenes/nebula.jpg")());
+    sf::Vector2u sz = a.texture->getSize();
+    std::cout << " size of the texture after loading:" << sz.x << " , " << sz.y << ";\n";
+
+    a.sprite = new sf::Sprite(*a.texture);
+    a.sprite->setScale(a.width / 1920.f, a.height / 1080.f);
+    a.sprite->setPosition(0.f, 0.f);
+    //...
+    _game_entities << scene0;
+     */
 }
 
 void game::update(float dt_)

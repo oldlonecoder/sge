@@ -44,6 +44,12 @@ target_link_libraries(virtualspace vxio sge sfml-graphics sfml-window sfml-syste
 install(DIRECTORY
         assets
         DESTINATION "${CMAKE_INSTALL_PREFIX}/games/${PROJECT_NAME}"
+
+)
+
+install(FILES
+		virtualspace.sge
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/games/${PROJECT_NAME}"
 )
 
 install(TARGETS ${TargetName} virtualspace

@@ -43,6 +43,7 @@ class game_configs
     vxio::lexer lex;
     vxio::token_data::collection tokens;
     vxio::token_data::iterator cc;
+    std::string data_stream;
     
     std::string cfg_path;
     std::string game_name;
@@ -51,7 +52,7 @@ class game_configs
     
     game_configs::in_fn in_fnptr = nullptr;
     static game_configs::input_table inputs_table;
-    bool next_token();
+    //bool next_token();
     friend class game;
     
 public:
@@ -59,33 +60,37 @@ public:
      * @brief config data struct that can grow as well into the derived game_configs class
      *
      */
-    struct data // global_data
+    struct global_data // global_data
     {
         sf::Vector2i resolution;
         std::string  wallpaper;
         int          framerate;
         std::string assets_path;
+    }_global_data=
+    {
+        {900,600},
+        "assets/scenes/nebula.jpg",
+        60,
+        "assets"
     };
     
-    game_configs() {} ;
+    game_configs() = default ;
     virtual ~game_configs();
-    game_configs(std::string name_, std::string config_path_="/usr/local/games");
+    explicit game_configs(std::string name_, std::string config_path_="/usr/local/games");
     
     
     game_configs& operator=(game_configs&&) noexcept;
     game_configs& operator=(const game_configs&);
     
-    virtual expect<> in_res();
-    virtual expect<> in_framerate();
-    virtual expect<> in_wallpaper();
-    
-    virtual expect<> in_expect(vxio::type::T token_type);
-    
-    virtual game_configs::data& configs_data() { return _config_data; }
-    virtual expect<> load_ini_sourcefile();
+
+    virtual game_configs::global_data& configs_data() { return _config_data; }
+    virtual expect<> load_sge_sourcefile();
     
 private:
-    data _config_data;
+    expect<> init();
+    expect<> compile();
+    
+    global_data _config_data;
 };
 
 }
