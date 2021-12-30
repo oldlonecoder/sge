@@ -104,9 +104,9 @@ expect<> game_configs::in_wallpaper()
     if(!R)
         return R;
     
-    _config_data.scene0_background = cc->text();
+    _config_data.wallpaper = cc->text();
     
-    logger::debug() << "scene0::wallpaper (file) :'" << _config_data.scene0_background << "'\n";
+    logger::debug() << "scene0::wallpaper (file) :'" << _config_data.wallpaper << "'\n";
 
     R = in_expect(vxio::type::text_t);
     if(!R)

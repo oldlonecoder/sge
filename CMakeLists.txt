@@ -63,3 +63,5 @@ install(TARGETS ${TargetName} #sge.app
         RUNTIME DESTINATION bin
         INCLUDES DESTINATION include
 )
+
+add_subdirectory(virtualspace)

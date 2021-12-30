@@ -57,16 +57,14 @@ class game_configs
 public:
     /*!
      * @brief config data struct that can grow as well into the derived game_configs class
+     *
      */
-    struct data
+    struct data // global_data
     {
         sf::Vector2i resolution;
-        std::string  scene0_background;
+        std::string  wallpaper;
         int          framerate;
-        
         std::string assets_path;
-        
-        
     };
     
     game_configs() {} ;
