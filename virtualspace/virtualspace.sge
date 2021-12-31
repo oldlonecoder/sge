@@ -3,6 +3,7 @@
 global
 {
     resolution : 80,600;
+    resolution : 900,600;
     wallpaper  : "assets/scenes/nebula.jpg";
     framerate  : 60;
 }

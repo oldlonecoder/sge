@@ -23,14 +23,14 @@ void sig_int( int s )
 
 void sig_fault( int s)
 {
-    logger::info() << " segmentation fault signal.";
+    logger::fatal() << " segmentation fault signal.";
     flush_logs();
     exit(127);
 }
 
 void sig_abort( int s)
 {
-    logger::info() << " abort signal ";
+    logger::error() << " abort signal ";
     flush_logs();
     exit(127);
 }
@@ -42,11 +42,10 @@ namespace sge
 std::string configs_grammar = R"(
 global      : id_t bloc.
 bloc        : '{' +assign '}'.
-assign      : ?resolution ?wallpaper ?framerate ?name.
+assign      : ?resolution ?filepath ?framerate.
 resolution  : id_t ':' number_t ',' number_t ';'.
-wallpaper   : id_t ':' '"' text_t '"'  ';'.
+filepath    : id_t ':' '"' text_t '"'  ';'.
 framerate   : id_t ':' number_t ';'.
-name        : id_t ':' '"' text_t '"' ';'.
 )";
 
 game_configs::input_table game_configs::inputs_table=
@@ -167,56 +166,73 @@ expect<> game_configs::compile()
 
 expect<> game_configs::parse_context(vxio::parser::context_t& ctx)
 {
-//    auto token = ctx.i_tokens.begin();
-//    logger::debug(src_long_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
-//    auto it = game_configs::inputs_table.find((*token)->text());
-//    auto [k,fnptr] = *it;
-//    logger::debug(src_long_funcname) << "key:'" << k << "'; =>\n";
-//    if(fnptr)
-//        return (this->*fnptr)(ctx);
+    auto token = ctx.tokens_cache.begin();
+    logger::debug(src_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
+    auto it = game_configs::inputs_table.find((*token)->text());
+    auto [k,fnptr] = *it;
+    logger::debug(src_funcname) << "key:'" << k << "'; =>\n";
+    if(fnptr)
+        return (this->*fnptr)(ctx);
     
-    return logger::fatal(src_long_funcname) << " yet to be implemented!!! :)";
+    return logger::fatal(src_long_funcname) << " '" << k << "'  has yet to be implemented!!! :)";
 }
 
 
 expect<> game_configs::parse_resolution(vxio::parser::context_t& ctx)
 {
-//    auto token = ctx.i_tokens.begin();
-//    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
-//    ++token;
-//    // ':'
-//    ++token;
-//    iostr str;
-//    str = (*token)->text();
-//    str >> _config_data.resolution.x;
-//    ++token;
-//    // ','
-//    ++token;
-//    str = (*token)->text();
-//    str >> _config_data.resolution.y;
-//    ++token;
-//    // ';'
-//    logger::debug() << "check:\n";
-//    logger::debug() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
+    auto token = ctx.tokens_cache.begin();
+    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // ':'
+    ++token;
+    iostr str;
+    str = (*token)->text();
+    str >> _config_data.resolution.x;
+    ++token;
+    // ','
+    ++token;
+    str = (*token)->text();
+    str >> _config_data.resolution.y;
+    ++token;
+    // ';'
+    logger::debug() << "check:\n";
+    logger::info() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
     return rem::code::accepted;
 }
 
 
 expect<> game_configs::parse_framerate(vxio::parser::context_t& ctx)
 {
-//    auto token = ctx.i_tokens.begin();
-//    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
-//    ++token;
-//    // ':'
-//    ++token;
+    auto token = ctx.tokens_cache.begin();
+    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // ':'
+    ++token;
+    iostr str;
+    str = (*token)->text();
+    str >> _config_data.framerate;
+    ++token;
+    // ';'
+    logger::debug() << "check:\n";
+    logger::info() << "framerate: " << _config_data.framerate << ".\n ==> end token : '" << (*token)->text() << "'\n";
     return rem::code::implement;
 }
 
 
 expect<> game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
 {
-   
-    
+    auto token = ctx.tokens_cache.begin();
+    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
+    ++token;
+    // '"'
+    ++token;
+    _config_data.wallpaper = (*token)->text();
+    ++token;
+    //'"'
+    ++token;
+    // ';'
+    logger::debug() << "check:\n";
+    logger::info() << "wallpaper: " << _config_data.wallpaper << ".\n ==> end token : '" << (*token)->text() << "'\n";
     return rem::code::implement;
 }
 
