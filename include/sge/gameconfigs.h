@@ -32,7 +32,7 @@
          // tokens stream,
 #include <vxio/interpret/compiler/grammar.h> // rules.
 #include <vxio/lexer/lexer.h>
-#include <vxio/interpret/compiler/parserbase.h>
+#include <vxio/interpret/compiler/parser.h>
 
 
 
@@ -50,18 +50,18 @@ class game_configs
     
     std::string cfg_path;
     std::string game_name;
-    using in_fn = expect<>(game_configs::*)(vxio::context&);
+    using in_fn = expect<>(game_configs::*)(vxio::parser::context_t&);
     using input_table = std::map<std::string, game_configs::in_fn>;
     
     game_configs::in_fn in_fnptr = nullptr;
     static game_configs::input_table inputs_table;
     //bool next_token();
     friend class game;
-    expect<> parse_context(vxio::context& ctx);
+    expect<> parse_context(vxio::parser::context_t& ctx);
     
-    expect<> parse_resolution(vxio::context& ctx);
-    expect<> parse_framerate(vxio::context& ctx);
-    expect<> parse_wallpaper(vxio::context& ctx);
+    expect<> parse_resolution(vxio::parser::context_t& ctx);
+    expect<> parse_framerate(vxio::parser::context_t& ctx);
+    expect<> parse_wallpaper(vxio::parser::context_t& ctx);
     
 public:
     /*!

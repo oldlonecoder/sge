@@ -35,8 +35,6 @@ void sig_abort( int s)
     exit(127);
 }
 
-
-
 namespace sge
 {
 
@@ -76,8 +74,6 @@ cfg_path(std::move(config_path_)), game_name(std::move(name_))
 
 
 
-
-
 expect<> game_configs::init()
 {
     
@@ -90,9 +86,6 @@ expect<> game_configs::init()
     g.text() = configs_grammar;
     g.build();
     g.dump();
-    logger::clear([](rem& r){
-       std::cout << r.cc() << "\n";
-    });
     
     if(expect<> R; !(R = load_sge_sourcefile()))
         return R;
@@ -136,6 +129,7 @@ game_configs &game_configs::operator=(game_configs && rhs) noexcept
     tokens       = std::move(rhs.tokens);
     return *this;
 }
+
 game_configs &game_configs::operator=(const game_configs &rhs)
 {
     cfg_path = rhs.cfg_path;
@@ -144,6 +138,7 @@ game_configs &game_configs::operator=(const game_configs &rhs)
     tokens       = rhs.tokens;
     return *this;
 }
+
 expect<> game_configs::compile()
 {
     
@@ -159,81 +154,69 @@ expect<> game_configs::compile()
     lex.dump_tokens([](const vxio::token_data& token){
        logger::debug() << token.details(true);
     });
-    logger::clear([](rem& r){
-       std::cout << r.cc() << "\n";
-    });
-    vxio::parser_base parser;
     
-    vxio::context cctx;
-    cctx._rule = vxio::grammar()["global"];
-    cctx.start = cctx.c = tokens.begin();
-    cctx.last = --tokens.end();
-    cctx.blk = nullptr;
+    vxio::parser parser;
     
-    parser.parse(cctx,[this](vxio::context& ctx)->expect<>{
+    parser.set_bloc(nullptr).set_tokens_stream(&tokens).set_assembler([this](vxio::parser::context_t& ctx)->expect<>{
         return parse_context(ctx);
     });
+    parser.parse("global");
     vxio::grammar::destroy_rules();
     return logger::warning(src_long_funcname) << " : implement...";
 }
 
-expect<> game_configs::parse_context(vxio::context &ctx)
+expect<> game_configs::parse_context(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.i_tokens.begin();
-    logger::debug(src_long_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
-    auto it = game_configs::inputs_table.find((*token)->text());
-    auto [k,fnptr] = *it;
-    logger::debug(src_long_funcname) << "key:'" << k << "'; =>\n";
-    if(fnptr)
-        return (this->*fnptr)(ctx);
+//    auto token = ctx.i_tokens.begin();
+//    logger::debug(src_long_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
+//    auto it = game_configs::inputs_table.find((*token)->text());
+//    auto [k,fnptr] = *it;
+//    logger::debug(src_long_funcname) << "key:'" << k << "'; =>\n";
+//    if(fnptr)
+//        return (this->*fnptr)(ctx);
     
-    return logger::fatal() << " yet to be implemented!!! :)";
+    return logger::fatal(src_long_funcname) << " yet to be implemented!!! :)";
 }
 
 
-expect<> game_configs::parse_resolution(vxio::context &ctx)
+expect<> game_configs::parse_resolution(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.i_tokens.begin();
-    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
-    // ':'
-    ++token;
-    iostr str;
-    str = (*token)->text();
-    str >> _config_data.resolution.x;
-    ++token;
-    // ','
-    ++token;
-    str = (*token)->text();
-    str >> _config_data.resolution.y;
-    ++token;
-    // ';'
-    logger::debug() << "check:\n";
-    logger::debug() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
+//    auto token = ctx.i_tokens.begin();
+//    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
+//    ++token;
+//    // ':'
+//    ++token;
+//    iostr str;
+//    str = (*token)->text();
+//    str >> _config_data.resolution.x;
+//    ++token;
+//    // ','
+//    ++token;
+//    str = (*token)->text();
+//    str >> _config_data.resolution.y;
+//    ++token;
+//    // ';'
+//    logger::debug() << "check:\n";
+//    logger::debug() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
     return rem::code::accepted;
 }
 
 
-
-
-expect<> game_configs::parse_framerate(vxio::context &ctx)
+expect<> game_configs::parse_framerate(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.i_tokens.begin();
-    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
-    // ':'
-    ++token;
+//    auto token = ctx.i_tokens.begin();
+//    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
+//    ++token;
+//    // ':'
+//    ++token;
     return rem::code::implement;
 }
 
 
-expect<> game_configs::parse_wallpaper(vxio::context &ctx)
+expect<> game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.i_tokens.begin();
-    logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
-    // ':'
-    ++token;
+   
+    
     return rem::code::implement;
 }
 
