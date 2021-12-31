@@ -1,9 +1,8 @@
 // sge::virtualspace blah blah...
 
-// global
-//{
-    resolution : 800,600;
+global
+{
+    resolution : 80,600;
     wallpaper  : "assets/scenes/nebula.jpg";
     framerate  : 60;
-
-//}
+}

@@ -4,6 +4,38 @@
 
 #include <sge/gameconfigs.h>
 #include <fstream>
+#include <signal.h>
+
+
+void flush_logs()
+{
+    logger::clear([](rem& r){
+        std::cout << r.cc() << "\n";
+    });
+}
+
+void sig_int( int s )
+{
+    logger::info() << " interrupt signal by ctrl-c hit on keyboard. ";
+    flush_logs();
+    exit(3);
+}
+
+void sig_fault( int s)
+{
+    logger::info() << " segmentation fault signal.";
+    flush_logs();
+    exit(127);
+}
+
+void sig_abort( int s)
+{
+    logger::info() << " abort signal ";
+    flush_logs();
+    exit(127);
+}
+
+
 
 namespace sge
 {
@@ -11,12 +43,12 @@ namespace sge
 
 std::string configs_grammar = R"(
 global      : id_t bloc.
-bloc        : '{' +attr_id '}'.
-attr_id     : ?resolution ?wallpaper ?framerate ?#name.
-resolution  : id_t ':' u16_t ',' u16_t ';'.
-wallpaper   : id_t ':'  text_t ';'.
-framerate   : id_t ':'  number_t ';'.
-name        : id_t ':' text_t ';'.
+bloc        : '{' +assign '}'.
+assign      : ?resolution ?wallpaper ?framerate ?name.
+resolution  : id_t ':' number_t ',' number_t ';'.
+wallpaper   : id_t ':' '"' text_t '"'  ';'.
+framerate   : id_t ':' number_t ';'.
+name        : id_t ':' '"' text_t '"' ';'.
 )";
 
 game_configs::input_table game_configs::inputs_table=
@@ -50,9 +82,18 @@ expect<> game_configs::init()
 {
     
     vxio::grammar g;
+    
+    ::signal(SIGINT, sig_int);
+    ::signal(SIGSEGV, sig_fault);
+    ::signal(SIGABRT, sig_abort);
+    
     g.text() = configs_grammar;
     g.build();
     g.dump();
+    logger::clear([](rem& r){
+       std::cout << r.cc() << "\n";
+    });
+    
     if(expect<> R; !(R = load_sge_sourcefile()))
         return R;
     return compile();
@@ -118,11 +159,13 @@ expect<> game_configs::compile()
     lex.dump_tokens([](const vxio::token_data& token){
        logger::debug() << token.details(true);
     });
-
+    logger::clear([](rem& r){
+       std::cout << r.cc() << "\n";
+    });
     vxio::parser_base parser;
     
     vxio::context cctx;
-    cctx._rule = vxio::grammar()["resolution"];
+    cctx._rule = vxio::grammar()["global"];
     cctx.start = cctx.c = tokens.begin();
     cctx.last = --tokens.end();
     cctx.blk = nullptr;
@@ -190,7 +233,8 @@ expect<> game_configs::parse_wallpaper(vxio::context &ctx)
     logger::debug(src_long_funcname) << ":\nfirst token: " << (*token)->text();
     ++token;
     // ':'
-    ++token;return rem::code::implement;
+    ++token;
+    return rem::code::implement;
 }
 
 }
