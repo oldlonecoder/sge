@@ -50,18 +50,18 @@ class game_configs
     
     std::string cfg_path;
     std::string game_name;
-    using in_fn = expect<>(game_configs::*)(vxio::parser::context_t&);
+    using in_fn = rem::code (game_configs::*)(vxio::parser::context_t&);
     using input_table = std::map<std::string, game_configs::in_fn>;
     
     game_configs::in_fn in_fnptr = nullptr;
     static game_configs::input_table inputs_table;
-    //bool next_token();
+
     friend class game;
-    expect<> parse_context(vxio::parser::context_t& ctx);
-    
-    expect<> parse_resolution(vxio::parser::context_t& ctx);
-    expect<> parse_framerate(vxio::parser::context_t& ctx);
-    expect<> parse_wallpaper(vxio::parser::context_t& ctx);
+    rem::code parse_context(vxio::parser::context_t& ctx);
+
+    rem::code parse_resolution(vxio::parser::context_t& ctx);
+    rem::code parse_framerate(vxio::parser::context_t& ctx);
+    rem::code parse_wallpaper(vxio::parser::context_t& ctx);
     
 public:
     /*!
@@ -70,10 +70,16 @@ public:
      */
     struct global_data // global_data
     {
-        sf::Vector2i resolution;
+        sf::Vector2<int> resolution;
         std::string  wallpaper;
         int          framerate;
         std::string assets_path;
+        struct {
+            int8_t r : 1;
+            int8_t w : 1;
+            int8_t f : 1;
+            int8_t a : 1;
+        }flags = {0};
     }_global_data=
     {
         {900,600},

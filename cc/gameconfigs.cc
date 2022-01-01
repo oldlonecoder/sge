@@ -42,10 +42,7 @@ namespace sge
 std::string configs_grammar = R"(
 global      : id_t bloc.
 bloc        : '{' +assign '}'.
-assign      : ?resolution ?filepath ?framerate.
-resolution  : id_t ':' number_t ',' number_t ';'.
-filepath    : id_t ':' '"' text_t '"'  ';'.
-framerate   : id_t ':' number_t ';'.
+assign      : id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';' |  id_t ':' number_t ';'.
 )";
 
 game_configs::input_table game_configs::inputs_table=
@@ -156,91 +153,153 @@ expect<> game_configs::compile()
     
     vxio::parser parser;
     
-    parser.set_bloc(nullptr).set_tokens_stream(&tokens).set_assembler([this](vxio::parser::context_t& ctx)->expect<>{
+    parser.set_bloc(nullptr)
+    .set_tokens_stream(&tokens)
+    .set_assembler([this](vxio::parser::context_t& ctx)->rem::code{
         return parse_context(ctx);
     });
-    parser.parse("global");
+
+    logger::info(src_funcname) << " compiling sge source configs :";
+    rem::code code = parser.parse("global");
+    logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources:";
+
     vxio::grammar::destroy_rules();
-    return logger::warning(src_long_funcname) << " : implement...";
+    return logger::warning(src_long_funcname) << " : really not yet fully implement...";
 }
 
-expect<> game_configs::parse_context(vxio::parser::context_t& ctx)
+rem::code game_configs::parse_context(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.tokens_cache.begin();
-    logger::debug(src_funcname) << "context::token:'" << (*token)->text() << "'=>\n";
+    auto token = ctx.begin_cache();
+    logger::debug(src_funcname) << "context " << ctx.status() << "'=>\n";
     auto it = game_configs::inputs_table.find((*token)->text());
+    if(it == game_configs::inputs_table.end())
+    {
+        logger::fatal(src_funcname) << " gameconfigs has no such handle for token " << (*ctx.token_ptr)->text();
+        abort();
+    }
     auto [k,fnptr] = *it;
-    logger::debug(src_funcname) << "key:'" << k << "'; =>\n";
+    logger::debug(src_funcname) << "key:'" << k << "':\n";
     if(fnptr)
         return (this->*fnptr)(ctx);
     
-    return logger::fatal(src_long_funcname) << " '" << k << "'  has yet to be implemented!!! :)";
+    logger::fatal(src_long_funcname) << " '" << k << "'  has yet to be implemented!!! :)";
+    abort();
+    return rem::code::rejected;
 }
 
 
-expect<> game_configs::parse_resolution(vxio::parser::context_t& ctx)
+rem::code game_configs::parse_resolution(vxio::parser::context_t& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
     
     if(!--ctx)
-        return logger::error(src_funcname) << " unexpected eot";
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     //:
     if(!--ctx)
-        return logger::error(src_funcname) << " unexpected eot";
-    
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     iostr str;
     str = (*ctx.token_ptr)->text();
     str >> _config_data.resolution.x;
     if(!--ctx)
-        return logger::error(src_funcname) << " unexpected eot";
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // ','
     if(!--ctx)
-        return logger::error(src_funcname) << " unexpected eot";
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
+
     str = (*ctx.token_ptr)->text();
     str >> _config_data.resolution.y;
     if(!--ctx)
-        return logger::error(src_funcname) << " unexpected eot";
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // ';'
     logger::debug() << "check:\n";
-    logger::info() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*ctx.token_ptr)->text() << "'\n";
+    logger::info() << "gameconfigs::resolution = {" << _config_data.resolution.x << ',' << _config_data.resolution.y << " } - end token is '" << (*ctx.token_ptr)->text() << "'\n";
     return rem::code::accepted;
 }
 
 
-expect<> game_configs::parse_framerate(vxio::parser::context_t& ctx)
+rem::code game_configs::parse_framerate(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.tokens_cache.begin();
-    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
+    ctx.begin_cache();
+    logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // ':'
-    ++token;
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     iostr str;
-    str = (*token)->text();
+    str = (*ctx.token_ptr)->text();
     str >> _config_data.framerate;
-    ++token;
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // ';'
     logger::debug() << "check:\n";
-    logger::info() << "framerate: " << _config_data.framerate << ".\n ==> end token : '" << (*token)->text() << "'\n";
-    return rem::code::implement;
+    logger::info() << "framerate: " << _config_data.framerate << ".\n ==> end token : '" << (*ctx.token_ptr)->text();
+    return rem::code::accepted;
 }
 
 
-expect<> game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
+rem::code game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.tokens_cache.begin();
-    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
+    ctx.begin_cache();
+
+    logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
+    // ':'
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // '"'
-    ++token;
-    _config_data.wallpaper = (*token)->text();
-    ++token;
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
+    _config_data.wallpaper = (*ctx.token_ptr)->text();
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     //'"'
-    ++token;
+    if(!--ctx)
+    {
+        logger::error(src_funcname) << " unexpected eot";
+        return rem::code::rejected;
+    }
     // ';'
-    logger::debug() << "check:\n";
-    logger::info() << "wallpaper: " << _config_data.wallpaper << ".\n ==> end token : '" << (*token)->text() << "'\n";
-    return rem::code::implement;
+    logger::debug(src_funcname) << "check:" << rem::code::endl << " gameconfigs::wallpaper = " << _config_data.wallpaper << rem::code::endl;
+    return rem::code::accepted;
 }
 
 }
