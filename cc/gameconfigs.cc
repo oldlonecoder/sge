@@ -180,23 +180,30 @@ expect<> game_configs::parse_context(vxio::parser::context_t& ctx)
 
 expect<> game_configs::parse_resolution(vxio::parser::context_t& ctx)
 {
-    auto token = ctx.tokens_cache.begin();
-    logger::debug(src_funcname) << ":\nfirst token: " << (*token)->text();
-    ++token;
-    // ':'
-    ++token;
+    ctx.begin_cache();
+    logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
+    
+    if(!--ctx)
+        return logger::error(src_funcname) << " unexpected eot";
+    //:
+    if(!--ctx)
+        return logger::error(src_funcname) << " unexpected eot";
+    
     iostr str;
-    str = (*token)->text();
+    str = (*ctx.token_ptr)->text();
     str >> _config_data.resolution.x;
-    ++token;
+    if(!--ctx)
+        return logger::error(src_funcname) << " unexpected eot";
     // ','
-    ++token;
-    str = (*token)->text();
+    if(!--ctx)
+        return logger::error(src_funcname) << " unexpected eot";
+    str = (*ctx.token_ptr)->text();
     str >> _config_data.resolution.y;
-    ++token;
+    if(!--ctx)
+        return logger::error(src_funcname) << " unexpected eot";
     // ';'
     logger::debug() << "check:\n";
-    logger::info() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*token)->text() << "'\n";
+    logger::info() << "resolution: " << _config_data.resolution.x << ',' << _config_data.resolution.y << " ; end token : '" << (*ctx.token_ptr)->text() << "'\n";
     return rem::code::accepted;
 }
 
