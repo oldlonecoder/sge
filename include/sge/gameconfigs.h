@@ -57,11 +57,13 @@ class game_configs
     static game_configs::input_table inputs_table;
 
     friend class game;
-    rem::code parse_context(vxio::parser::context_t& ctx);
+    rem::code assemble(vxio::parser::context_t& ctx);
 
-    rem::code parse_resolution(vxio::parser::context_t& ctx);
-    rem::code parse_framerate(vxio::parser::context_t& ctx);
-    rem::code parse_wallpaper(vxio::parser::context_t& ctx);
+    rem::code assemble_resolution(vxio::parser::context_t& ctx);
+    rem::code assemble_framerate(vxio::parser::context_t& ctx);
+    rem::code assemble_wallpaper(vxio::parser::context_t& ctx);
+    rem::code assemble_bloc(vxio::parser::context_t& ctx);
+    rem::code assemble_global(vxio::parser::context_t& ctx);
     
 public:
     /*!

@@ -47,9 +47,11 @@ assign      : id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';'
 
 game_configs::input_table game_configs::inputs_table=
     {
-        {"resolution",  &game_configs::parse_resolution},
-        {"framerate",   &game_configs::parse_framerate},
-        {"wallpaper",   &game_configs::parse_wallpaper}
+        {"resolution",  &game_configs::assemble_resolution},
+        {"framerate",   &game_configs::assemble_framerate},
+        {"wallpaper",   &game_configs::assemble_wallpaper},
+        {"{",           &game_configs::assemble_bloc},
+        {"global",      &game_configs::assemble_global}
         //... more common rules and config elements to come...
     };
 
@@ -188,7 +190,7 @@ rem::code game_configs::parse_context(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::parse_resolution(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_resolution(vxio::parser::context_t& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -233,7 +235,7 @@ rem::code game_configs::parse_resolution(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::parse_framerate(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_framerate(vxio::parser::context_t& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -263,7 +265,7 @@ rem::code game_configs::parse_framerate(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_wallpaper(vxio::parser::context_t& ctx)
 {
     ctx.begin_cache();
 
@@ -302,4 +304,17 @@ rem::code game_configs::parse_wallpaper(vxio::parser::context_t& ctx)
     return rem::code::accepted;
 }
 
+
+
+rem::code game_configs::assemble_bloc(vxio::parser::context_t& ctx)
+{
+    return rem::code::accepted;
 }
+
+rem::code game_configs::assemble_global(vxio::parser::context_t& ctx)
+{
+    return rem::code::accepted;
+}
+
+}
+
