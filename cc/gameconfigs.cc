@@ -158,7 +158,7 @@ expect<> game_configs::compile()
     parser.set_bloc(nullptr)
     .set_tokens_stream(&tokens)
     .set_assembler([this](vxio::parser::context_t& ctx)->rem::code{
-        return parse_context(ctx);
+        return assemble(ctx);
     });
 
     logger::info(src_funcname) << " compiling sge source configs :";
@@ -169,7 +169,7 @@ expect<> game_configs::compile()
     return logger::warning(src_long_funcname) << " : really not yet fully implement...";
 }
 
-rem::code game_configs::parse_context(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble(vxio::parser::context_t& ctx)
 {
     auto token = ctx.begin_cache();
     logger::debug(src_funcname) << "context " << ctx.status() << "'=>\n";
