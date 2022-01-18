@@ -40,7 +40,7 @@ namespace sge
 
 
 std::string configs_grammar = R"(
-global      : id_t bloc.
+game      : id_t bloc.
 bloc        : '{' +assign '}'.
 assign      : id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';' |  id_t ':' number_t ';'.
 )";
@@ -51,7 +51,8 @@ game_configs::input_table game_configs::inputs_table=
         {"framerate",   &game_configs::assemble_framerate},
         {"wallpaper",   &game_configs::assemble_wallpaper},
         {"{",           &game_configs::assemble_bloc},
-        {"global",      &game_configs::assemble_global}
+        {"game",      &game_configs::assemble_global},
+        {"name",      &game_configs::assign_name},
         //... more common rules and config elements to come...
     };
 
@@ -304,6 +305,10 @@ rem::code game_configs::assemble_wallpaper(vxio::parser::context_t& ctx)
     return rem::code::accepted;
 }
 
+rem::code game_configs::assign_name(vxio::parser::context_t&)
+{
+    return rem::code::rejected;
+}
 
 
 rem::code game_configs::assemble_bloc(vxio::parser::context_t& ctx)

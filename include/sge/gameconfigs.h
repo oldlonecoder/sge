@@ -64,6 +64,7 @@ class game_configs
     rem::code assemble_wallpaper(vxio::parser::context_t& ctx);
     rem::code assemble_bloc(vxio::parser::context_t& ctx);
     rem::code assemble_global(vxio::parser::context_t& ctx);
+    rem::code assign_name(vxio::parser::context_t& ctx);
     
 public:
     /*!

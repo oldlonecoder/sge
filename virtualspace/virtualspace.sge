@@ -1,6 +1,6 @@
 // sge::virtualspace blah blah...
 
-global
+game
 {
     resolution : 80,600;
     resolution : 900,600;
