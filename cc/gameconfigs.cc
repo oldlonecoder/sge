@@ -163,7 +163,7 @@ expect<> game_configs::compile()
     });
 
     logger::info(src_funcname) << " compiling sge source configs :";
-    rem::code code = parser.parse("global");
+    rem::code code = parser.parse("game");
     logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources:";
 
     vxio::grammar::destroy_rules();
