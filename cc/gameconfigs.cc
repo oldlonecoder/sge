@@ -158,7 +158,7 @@ expect<> game_configs::compile()
     
     parser.set_bloc(nullptr)
     .set_tokens_stream(&tokens)
-    .set_assembler([this](vxio::parser::context_t& ctx)->rem::code{
+    .set_assembler([this](vxio::parser::context& ctx)->rem::code{
         return assemble(ctx);
     });
 
@@ -167,10 +167,10 @@ expect<> game_configs::compile()
     logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources:";
 
     vxio::grammar::destroy_rules();
-    return logger::warning(src_long_funcname) << " : really not yet fully implement...";
+    return logger::warning(src_long_funcname) << " : really... not yet... fully... implement...";
 }
 
-rem::code game_configs::assemble(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble(vxio::parser::context& ctx)
 {
     auto token = ctx.begin_cache();
     logger::debug(src_funcname) << "context " << ctx.status() << "'=>\n";
@@ -191,7 +191,7 @@ rem::code game_configs::assemble(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::assemble_resolution(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_resolution(vxio::parser::context& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -236,7 +236,7 @@ rem::code game_configs::assemble_resolution(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::assemble_framerate(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_framerate(vxio::parser::context& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -266,7 +266,7 @@ rem::code game_configs::assemble_framerate(vxio::parser::context_t& ctx)
 }
 
 
-rem::code game_configs::assemble_wallpaper(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_wallpaper(vxio::parser::context& ctx)
 {
     ctx.begin_cache();
 
@@ -305,18 +305,18 @@ rem::code game_configs::assemble_wallpaper(vxio::parser::context_t& ctx)
     return rem::code::accepted;
 }
 
-rem::code game_configs::assign_name(vxio::parser::context_t&)
+rem::code game_configs::assign_name(vxio::parser::context&)
 {
     return rem::code::rejected;
 }
 
 
-rem::code game_configs::assemble_bloc(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_bloc(vxio::parser::context& ctx)
 {
     return rem::code::accepted;
 }
 
-rem::code game_configs::assemble_global(vxio::parser::context_t& ctx)
+rem::code game_configs::assemble_global(vxio::parser::context& ctx)
 {
     return rem::code::accepted;
 }
