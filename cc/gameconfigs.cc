@@ -40,7 +40,7 @@ namespace sge
 
 
 std::string configs_grammar = R"(
-game      : id_t bloc.
+game        : id_t bloc.
 bloc        : '{' +assign '}'.
 assign      : id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';' |  id_t ':' number_t ';'.
 )";
@@ -51,8 +51,9 @@ game_configs::input_table game_configs::inputs_table=
         {"framerate",   &game_configs::assemble_framerate},
         {"wallpaper",   &game_configs::assemble_wallpaper},
         {"{",           &game_configs::assemble_bloc},
-        {"game",      &game_configs::assemble_global},
-        {"name",      &game_configs::assign_name},
+        {"game",        &game_configs::assemble_global},
+        {"name",        &game_configs::assign_name},
+        {"}",           &game_configs::assemble_bloc},
         //... more common rules and config elements to come...
     };
 
@@ -175,11 +176,14 @@ expect<> game_configs::compile()
 rem::code game_configs::assemble(vxio::parser::context& ctx)
 {
     auto token = ctx.begin_cache();
-    logger::debug(src_funcname) << "context " << ctx.status() << "'=>\n";
+
+    logger::debug(src_funcname) << "context " << ctx.status() << "=>" << rem::code::endl
+    << vxio::color::Yellow << (*token)->text();
+
     auto it = game_configs::inputs_table.find((*token)->text());
     if(it == game_configs::inputs_table.end())
     {
-        logger::fatal(src_funcname) << " gameconfigs has no such handle for token " << (*ctx.token_ptr)->text();
+        logger::fatal(src_funcname) << " gameconfigs has no handler for token " << (*ctx.token_ptr)->text();
         abort();
     }
     auto [k,fnptr] = *it;
@@ -233,7 +237,7 @@ rem::code game_configs::assemble_resolution(vxio::parser::context& ctx)
     }
     // ';'
     logger::debug() << "check:\n";
-    logger::info() << "gameconfigs::resolution = {" << _config_data.resolution.x << ',' << _config_data.resolution.y << " } - end token is '" << (*ctx.token_ptr)->text() << "'\n";
+    logger::info() << rem::code::endl << to_str();
     return rem::code::accepted;
 }
 
@@ -244,13 +248,13 @@ rem::code game_configs::assemble_framerate(vxio::parser::context& ctx)
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
     if(!--ctx)
     {
-        logger::error(src_funcname) << " unexpected eot";
+        logger::error(src_funcname) << " unexpected end of stream";
         return rem::code::rejected;
     }
     // ':'
     if(!--ctx)
     {
-        logger::error(src_funcname) << " unexpected eot";
+        logger::error(src_funcname) << " unexpected end of stream";
         return rem::code::rejected;
     }
     iostr str;
@@ -258,12 +262,12 @@ rem::code game_configs::assemble_framerate(vxio::parser::context& ctx)
     str >> _config_data.framerate;
     if(!--ctx)
     {
-        logger::error(src_funcname) << " unexpected eot";
+        logger::error(src_funcname) << " unexpected end of stream";
         return rem::code::rejected;
     }
     // ';'
     logger::debug() << "check:\n";
-    logger::info() << "framerate: " << _config_data.framerate << ".\n ==> end token : '" << (*ctx.token_ptr)->text();
+    logger::info() << rem::code::endl << to_str();
     return rem::code::accepted;
 }
 
@@ -303,7 +307,7 @@ rem::code game_configs::assemble_wallpaper(vxio::parser::context& ctx)
         return rem::code::rejected;
     }
     // ';'
-    logger::debug(src_funcname) << "check:" << rem::code::endl << " gameconfigs::wallpaper = " << _config_data.wallpaper << rem::code::endl;
+    logger::info() << rem::code::endl << to_str();
     return rem::code::accepted;
 }
 
