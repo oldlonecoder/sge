@@ -85,9 +85,9 @@ public:
         }flags = {0};
     }_global_data=
     {
-        {900,600},
-        "assets/scenes/nebula.jpg",
-        60,
+        {0,0},
+        "",
+        0,
         "assets"
     };
     
@@ -95,7 +95,7 @@ public:
     virtual ~game_configs();
     explicit game_configs(std::string name_, std::string config_path_="/usr/local/games");
     
-    
+    std::string to_str();
     game_configs& operator=(game_configs&&) noexcept;
     game_configs& operator=(const game_configs&);
     

@@ -97,6 +97,7 @@ expect<> game_configs::load_sge_sourcefile()
 {
     iostr filename = cfg_path + game_name + ".sge"; // "/usr/local/games/virtualspace/virtualspace.sge"
     logger::debug() << "sge file path:" << filename() << ":\n";
+    _config_data.assets_path = cfg_path + game_name + "/assets"; // Temporary ....
 //
     std::ifstream f;
     char c;
@@ -167,6 +168,7 @@ expect<> game_configs::compile()
     logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources:";
 
     vxio::grammar::destroy_rules();
+    logger::debug(src_funcname) << rem::code::endl << to_str();
     return logger::warning(src_long_funcname) << " : really... not yet... fully... implement...";
 }
 
@@ -304,6 +306,17 @@ rem::code game_configs::assemble_wallpaper(vxio::parser::context& ctx)
     logger::debug(src_funcname) << "check:" << rem::code::endl << " gameconfigs::wallpaper = " << _config_data.wallpaper << rem::code::endl;
     return rem::code::accepted;
 }
+
+std::string game_configs::to_str()
+{
+    iostr str;
+    str << "Window Resolution:" << _config_data.resolution.x << " x " << _config_data.resolution.y << '\n';
+    str << "Window's Wall    :" << _config_data.wallpaper << '\n';
+    str << "Game Framerate   :" << _config_data.framerate << '\n';
+    str << "Game Assets Path :" << _config_data.assets_path << '\n';
+    return str();
+}
+
 
 rem::code game_configs::assign_name(vxio::parser::context&)
 {
