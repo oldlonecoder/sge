@@ -42,7 +42,7 @@ namespace sge
 std::string configs_grammar = R"(
 game        : id_t bloc.
 bloc        : '{' +assign '}'.
-assign      : id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';' |  id_t ':' number_t ';'.
+assign      : id_t ':' "'" text_t "'" ';' | id_t ':' '"' text_t '"'  ';'  | id_t ':' number_t ',' number_t ';' |  id_t ':' number_t ';'.
 )";
 
 game_configs::input_table game_configs::inputs_table=
@@ -89,7 +89,10 @@ expect<> game_configs::init()
     
     if(expect<> R; !(R = load_sge_sourcefile()))
         return R;
-    return compile();
+    auto R =  compile();
+
+    //...
+    return R;
 }
 
 
@@ -166,7 +169,7 @@ expect<> game_configs::compile()
 
     logger::info(src_funcname) << " compiling sge source configs :";
     rem::code code = parser.parse("game");
-    logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources:";
+    logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources";
 
     vxio::grammar::destroy_rules();
     logger::debug(src_funcname) << rem::code::endl << to_str();

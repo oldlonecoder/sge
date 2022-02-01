@@ -1,9 +1,13 @@
 // sge::virtualspace blah blah...
 
+
+//static real v = 0.1234;
+
+
 game
 {
     resolution : 80,600;
     resolution : 900,600;
-    wallpaper  : "assets/scenes/nebula.jpg";
+    wallpaper  : 'assets/scenes/nebula.jpg';
     framerate  : 60;
 }
