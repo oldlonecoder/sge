@@ -30,9 +30,7 @@
 #include <vxio/util/expect.h>
 #include <sge/entity.h>
          // tokens stream,
-#include <vxio/interpret/compiler/grammar.h> // rules.
-#include <vxio/lexer/lexer.h>
-#include <vxio/interpret/compiler/parser.h>
+#include <vxio/interpret/interpret.h>
 
 
 

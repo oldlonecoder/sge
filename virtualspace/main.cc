@@ -20,11 +20,14 @@ auto test_axt_newoperator()->rem::code
 
 int main()
 {
-    sge::game game = sge::game("virtualspace");
+    logger::debug(src_location) << " Leaving SGE configs load and parse. Re-writing 'compiler'. exploring the 'vxu' (interpreter virtual xio bloc unit):";
 
-    game.init();
+    //sge::game game = sge::game("virtualspace");
+
+    //game.init();
 
     test_axt_newoperator();
+
     logger::debug(src_funcname) << " axt pool count: " << vxio::color::Yellow << vxio::axt::axt_pool.size();
     logger::debug(src_funcname) << " axt pool instance at index 1: '" << vxio::color::Yellow << vxio::axt::axt_pool.begin()->t0->text() << vxio::color::White << "'";
 
