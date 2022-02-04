@@ -22,9 +22,9 @@ int main()
 {
     logger::debug(src_location) << " Leaving SGE configs load and parse. Re-writing 'compiler'. exploring the 'vxu' (interpreter virtual xio bloc unit):";
 
-    //sge::game game = sge::game("virtualspace");
+    sge::game game = sge::game("virtualspace");
 
-    //game.init();
+    game.init();
 
     test_axt_newoperator();
 

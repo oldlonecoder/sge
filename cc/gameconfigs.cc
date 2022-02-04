@@ -159,24 +159,24 @@ expect<> game_configs::compile()
        logger::debug() << token.details(true);
     });
     
-    vxio::parser parser;
+//    vxio::parser parser;
     
-    parser.set_bloc(nullptr)
-    .set_tokens_stream(&tokens)
-    .set_assembler([this](vxio::parser::context& ctx)->rem::code{
-        return assemble(ctx);
-    });
+//    parser.set_bloc(nullptr)
+//    .set_tokens_stream(&tokens)
+//    .set_assembler([this](vxio::parser::context& ctx)->rem::code{
+//        return assemble(ctx);
+//    });
 
-    logger::info(src_funcname) << " compiling sge source configs :";
-    rem::code code = parser.parse("game");
-    logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources";
+//    logger::info(src_funcname) << " compiling sge source configs :";
+//    rem::code code = parser.parse("game");
+//    logger::info(src_long_funcname) << " compile result:" << code << rem::code::endl << "destroying vxio resources";
 
-    vxio::grammar::destroy_rules();
-    logger::debug(src_funcname) << rem::code::endl << to_str();
+//    vxio::grammar::destroy_rules();
+//    logger::debug(src_funcname) << rem::code::endl << to_str();
     return logger::warning(src_long_funcname) << " : really... not yet... fully... implement...";
 }
 
-rem::code game_configs::assemble(vxio::parser::context& ctx)
+rem::code game_configs::assemble(vxio::compiler::context_data& ctx)
 {
     auto token = ctx.begin_cache();
 
@@ -200,7 +200,7 @@ rem::code game_configs::assemble(vxio::parser::context& ctx)
 }
 
 
-rem::code game_configs::assemble_resolution(vxio::parser::context& ctx)
+rem::code game_configs::assemble_resolution(vxio::compiler::context_data& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -245,7 +245,7 @@ rem::code game_configs::assemble_resolution(vxio::parser::context& ctx)
 }
 
 
-rem::code game_configs::assemble_framerate(vxio::parser::context& ctx)
+rem::code game_configs::assemble_framerate(vxio::compiler::context_data& ctx)
 {
     ctx.begin_cache();
     logger::debug(src_funcname) << ":\nfirst token: " << (*ctx.token_ptr)->text();
@@ -275,7 +275,7 @@ rem::code game_configs::assemble_framerate(vxio::parser::context& ctx)
 }
 
 
-rem::code game_configs::assemble_wallpaper(vxio::parser::context& ctx)
+rem::code game_configs::assemble_wallpaper(vxio::compiler::context_data& ctx)
 {
     ctx.begin_cache();
 
@@ -325,18 +325,18 @@ std::string game_configs::to_str()
 }
 
 
-rem::code game_configs::assign_name(vxio::parser::context&)
+rem::code game_configs::assign_name(vxio::compiler::context_data&)
 {
     return rem::code::rejected;
 }
 
 
-rem::code game_configs::assemble_bloc(vxio::parser::context& ctx)
+rem::code game_configs::assemble_bloc(vxio::compiler::context_data& ctx)
 {
     return rem::code::accepted;
 }
 
-rem::code game_configs::assemble_global(vxio::parser::context& ctx)
+rem::code game_configs::assemble_global(vxio::compiler::context_data& ctx)
 {
     return rem::code::accepted;
 }

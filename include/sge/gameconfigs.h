@@ -48,21 +48,21 @@ class game_configs
     
     std::string cfg_path;
     std::string game_name;
-    using in_fn = rem::code (game_configs::*)(vxio::parser::context&);
+    using in_fn = rem::code (game_configs::*)(vxio::compiler::context_data&);
     using input_table = std::map<std::string, game_configs::in_fn>;
     
     game_configs::in_fn in_fnptr = nullptr;
     static game_configs::input_table inputs_table;
 
     friend class game;
-    rem::code assemble(vxio::parser::context& ctx);
+    rem::code assemble(vxio::compiler::context_data& ctx);
 
-    rem::code assemble_resolution(vxio::parser::context& ctx);
-    rem::code assemble_framerate(vxio::parser::context& ctx);
-    rem::code assemble_wallpaper(vxio::parser::context& ctx);
-    rem::code assemble_bloc(vxio::parser::context& ctx);
-    rem::code assemble_global(vxio::parser::context& ctx);
-    rem::code assign_name(vxio::parser::context& ctx);
+    rem::code assemble_resolution(vxio::compiler::context_data& ctx);
+    rem::code assemble_framerate(vxio::compiler::context_data& ctx);
+    rem::code assemble_wallpaper(vxio::compiler::context_data& ctx);
+    rem::code assemble_bloc(vxio::compiler::context_data& ctx);
+    rem::code assemble_global(vxio::compiler::context_data& ctx);
+    rem::code assign_name(vxio::compiler::context_data& ctx);
     
 public:
     /*!
