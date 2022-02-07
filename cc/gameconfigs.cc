@@ -146,6 +146,9 @@ game_configs &game_configs::operator=(const game_configs &rhs)
 expect<> game_configs::compile()
 {
     
+    try{
+        vxio::interpret
+    }
     lex.config() = {
         data_stream.c_str(),
         &tokens
